@@ -1,0 +1,7 @@
+<div class="list">
+  <input type="search" ng-model="search">
+  <ul>
+    <li ng-repeat="obj in list | filter:search track by obj.id">{{ obj.name }}</li>
+  </ul>
+</div>
+<div id="dropbox" class="dropbox"></div>
