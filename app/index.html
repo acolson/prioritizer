@@ -23,7 +23,13 @@
     <![endif]-->
 
     <!-- Add your site or application content here -->
-    <div class="container" ng-include="'views/main.html'" ng-controller="MainCtrl"></div>
+    <div class="container" ng-controller="MainCtrl">
+      <prioritizer id="prioritizer" class="prioritizer"
+                   source="data"
+                   template-url="views/main.html"
+                   >
+      </prioritizer>
+    </div>
 
     <!--[if lt IE 9]>
     <script src="bower_components/es5-shim/es5-shim.js"></script>
@@ -51,8 +57,9 @@
 
     <!-- build:js({.tmp,app}) scripts/scripts.js -->
     <script src="scripts/app.js"></script>
-    <script src="scripts/controllers/main.js"></script>
     <script src="scripts/services/listdata.js"></script>
+    <script src="scripts/controllers/main.js"></script>
+    <script src="scripts/directives/prioritizer.js"></script>
     <!-- endbuild -->
 </body>
 </html>

@@ -4,19 +4,32 @@ $icon-font-path: "/bower_components/bootstrap-sass-official/vendor/assets/fonts/
 @import ../bower_components/bootstrap-sass-official/vendor/assets/stylesheets/bootstrap.scss
 // endbower
 
-.container
+.prioritizer
   display: flex
   flex-direction: row
   flex-wrap: nowrap
-  justify-content: space-between
-  align-content: stretch
+  justify-content: space-around
   align-items: stretch
+
+.list > ul
+  margin: 0
+  padding: 0
+  list-style: none
+  cursor: grab
+  user-select: none
+  user-drag: element
 
 .list,
 .dropbox
-  order: 0
   flex: 0 1 auto
-  align-self: auto
+
+.dragging
+  opacity: 0.4
 
 .dropbox
-  background-color: black
+  min-height: 300px
+  border: 1px solid rgba(0,0,0,0.1)
+  background-color: rgba(0,0,0,0.1)
+  transition: all 0.3s ease-in-out
+  &.dragging-hover
+    box-shadow: 0 0 10px 0 rgba(0,236,164,0.7)

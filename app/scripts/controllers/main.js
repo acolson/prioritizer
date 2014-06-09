@@ -2,5 +2,5 @@
 
 angular.module('priorisaurusApp')
   .controller('MainCtrl', function ($scope, ListData) {
-    $scope.list = ListData;
+    $scope.data = ListData;
   });
