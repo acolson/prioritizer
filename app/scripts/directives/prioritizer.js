@@ -10,7 +10,7 @@ angular.module('priorisaurusApp')
     };
   })
 
-  .directive('prioritizer', function () {
+  .directive('prioritizer', function ($compile, _) {
     return {
       templateUrl: function (el, attrs) {
         return attrs.templateUrl;
@@ -95,13 +95,12 @@ angular.module('priorisaurusApp')
 
           var dragScopeObj = $dragSrcEl.scope().obj;
 
-          if (dragScopeObj) {
-            dragScopeObj.moved = true;
-            scope.$apply();
-          }
-
           var $this = $(this),
-              $src = dragScopeObj ? $(e.dataTransfer.getData('text/plain')) : $dragSrcEl;
+              removeEl = $compile('<i class="glyphicon glyphicon-remove"' +
+                            'ng-click="removePriority($event)"></i>')(scope),
+              $src = dragScopeObj ?
+                     $(e.dataTransfer.getData('text/plain'))
+                     : $dragSrcEl;
 
           $this.removeClass('dragging-hover');
 
@@ -112,6 +111,12 @@ angular.module('priorisaurusApp')
               'dragend': end,
               'drop': order
             });
+
+          if (dragScopeObj) {
+            dragScopeObj.moved = true;
+            scope.$apply();
+            $src.append(removeEl);
+          }
 
           return false;
         };
@@ -136,6 +141,22 @@ angular.module('priorisaurusApp')
           'dragover': over,
           'drop': move
         });
+
+
+        /*
+         *
+         * Element Functions
+         *
+         */
+
+        scope.removePriority = function removePriority($event) {
+          var $el = $($event.target).parent(),
+              id = +$el[0].id,
+              obj = _.find(scope.data, {'id': id});
+
+          $el.remove();
+          obj.moved = false;
+        };
       }
     };
   });

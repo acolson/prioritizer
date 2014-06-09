@@ -2,7 +2,14 @@
   <div class="list">
     <input type="search" ng-model="search">
     <ul>
-      <li trigger-load ng-hide="obj.moved" ng-repeat="obj in data | filter:search track by obj.id">{{ obj.name }}</li>
+      <li class="list-item"
+          id="{{ obj.id }}"
+          trigger-load
+          ng-hide="obj.moved"
+          ng-repeat="obj in data | filter:search track by obj.id"
+          >
+          {{ obj.name }}
+      </li>
     </ul>
   </div>
   <div>
