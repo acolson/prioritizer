@@ -21,8 +21,9 @@ angular.module('priorisaurusApp')
       restrict: 'E',
       replace: true,
       link: function postLink(scope) {
-        var $dragSrcEl;
-
+        var $dragSrcEl,
+            removeTemplate = '<i class="remove glyphicon glyphicon-remove"' +
+                                'ng-click="removePriority($event)"></i>';
 
         /*
          *
@@ -36,6 +37,10 @@ angular.module('priorisaurusApp')
           if (e.stopPropagation) {
             e.stopPropagation();
           }
+        };
+
+        var getRemoveEl = function getRemoveEl() {
+          return $compile(removeTemplate)(scope);
         };
 
 
@@ -76,46 +81,35 @@ angular.module('priorisaurusApp')
           return false;
         };
 
-        var order = function order(e) {
-          stopProp(e);
-
-          var $this = $(this);
-
-          $dragSrcEl.insertBefore($this)
-            .removeClass('dragging');
-            // .on({
-            //   'dragstart': start,
-            //   'dragend': end,
-            //   'drop': order
-            // });
-        };
-
         var move = function move(e) {
           stopProp(e);
 
           var dragScopeObj = $dragSrcEl.scope().obj;
 
           var $this = $(this),
-              removeEl = $compile('<i class="glyphicon glyphicon-remove"' +
-                            'ng-click="removePriority($event)"></i>')(scope),
               $src = dragScopeObj ?
                      $(e.dataTransfer.getData('text/plain'))
                      : $dragSrcEl;
 
           $this.removeClass('dragging-hover');
 
-          $src.appendTo($this)
-            .removeClass('dragging')
+          $src.removeClass('dragging')
             .on({
               'dragstart': start,
               'dragend': end,
-              'drop': order
+              'drop': move
             });
 
           if (dragScopeObj) {
+            $src.append(getRemoveEl);
             dragScopeObj.moved = true;
             scope.$apply();
-            $src.append(removeEl);
+          }
+
+          if ($this.is('.dropbox')) {
+            $src.appendTo($this);
+          } else {
+            $src.insertBefore($this);
           }
 
           return false;
