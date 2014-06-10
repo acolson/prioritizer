@@ -22,8 +22,7 @@ angular.module('priorisaurusApp')
       replace: true,
       link: function postLink(scope) {
         var $dragSrcEl,
-            removeTemplate = '<i class="remove glyphicon glyphicon-remove"' +
-                                'ng-click="removePriority($event)"></i>';
+            $placeholder = $('<li class="placeholder"></li>');
 
         /*
          *
@@ -40,7 +39,9 @@ angular.module('priorisaurusApp')
         };
 
         var getRemoveEl = function getRemoveEl() {
-          return $compile(removeTemplate)(scope);
+          var removeEl = '<i class="remove glyphicon glyphicon-remove"' +
+                            'ng-click="removePriority($event)"></i>';
+          return $compile(removeEl)(scope);
         };
 
 
@@ -61,16 +62,27 @@ angular.module('priorisaurusApp')
 
         var end = function end() {
           $(this).removeClass('dragging');
+          $dragSrcEl.show();
+          $placeholder.detach();
         };
 
         var enter = function enter() {
-          $(this).addClass('dragging-hover');
+          var $this = $(this);
+          if ($this.is('.dropbox')) {
+            $this.addClass('dragging-hover');
+          } else {
+            $dragSrcEl.hide();
+            // super neat-oh trick borrowed from Farhadi's html5sortable plugin
+            // https://github.com/farhadi/html5sortable
+            $this[$placeholder.index() < $this.index() ? 'after' : 'before']($placeholder);
+          }
         };
 
         var leave = function leave() {
           $(this).removeClass('dragging-hover');
         };
 
+        // Drag hovering on element.
         var over = function over(e) {
           if (e.preventDefault) {
             e.preventDefault();
@@ -81,10 +93,11 @@ angular.module('priorisaurusApp')
           return false;
         };
 
+        // Element move
         var move = function move(e) {
           stopProp(e);
 
-          var dragScopeObj = $dragSrcEl.scope().obj;
+          var dragScopeObj = $dragSrcEl.scope() ? $dragSrcEl.scope().obj : null;
 
           var $this = $(this),
               $src = dragScopeObj ?
@@ -93,15 +106,16 @@ angular.module('priorisaurusApp')
 
           $this.removeClass('dragging-hover');
 
-          $src.removeClass('dragging')
-            .on({
-              'dragstart': start,
-              'dragend': end,
-              'drop': move
-            });
+          $src.removeClass('dragging');
 
           if (dragScopeObj) {
-            $src.append(getRemoveEl);
+            $src.append(getRemoveEl)
+              .on({
+                'dragstart': start,
+                'dragend': end,
+                'dragenter': enter,
+                'drop': move
+              });
             dragScopeObj.moved = true;
             scope.$apply();
           }
@@ -109,7 +123,7 @@ angular.module('priorisaurusApp')
           if ($this.is('.dropbox')) {
             $src.appendTo($this);
           } else {
-            $src.insertBefore($this);
+            $src.insertBefore($placeholder);
           }
 
           return false;
@@ -125,7 +139,7 @@ angular.module('priorisaurusApp')
         $('#prioritizer').on('dragload', function (e, el) {
           $(el).on({
             'dragstart': start,
-            'dragend': end
+            'dragend': end,
           });
         });
 
@@ -133,6 +147,10 @@ angular.module('priorisaurusApp')
           'dragenter': enter,
           'dragleave': leave,
           'dragover': over,
+          'drop': move
+        });
+
+        $placeholder.on({
           'drop': move
         });
 
