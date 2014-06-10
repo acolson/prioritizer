@@ -44,6 +44,17 @@ angular.module('priorisaurusApp')
           return $compile(removeEl)(scope);
         };
 
+        var updatePriority = function updatePriority(apply) {
+          scope.priorityList = [];
+          $('.dropbox li').each(function () {
+            scope.priorityList.push(this.id);
+          });
+          scope.priorityList.join(',');
+          if (apply) {
+            scope.$apply();
+          }
+        };
+
 
         /*
          *
@@ -64,6 +75,7 @@ angular.module('priorisaurusApp')
           $(this).removeClass('dragging');
           $dragSrcEl.show();
           $placeholder.detach();
+          updatePriority(true);
         };
 
         var enter = function enter() {
@@ -168,6 +180,7 @@ angular.module('priorisaurusApp')
 
           $el.remove();
           obj.moved = false;
+          updatePriority();
         };
       }
     };
