@@ -6,9 +6,9 @@
           id="{{ obj.id }}"
           trigger-load
           ng-hide="obj.moved"
-          ng-repeat="obj in data | filter:search track by obj.id"
+          ng-repeat="obj in data | filter:search | orderBy:sort:reverse track by obj.id"
           >
-          {{ obj.name }}
+          {{ obj.id }} :: {{ obj.name }} :: {{ obj.sites }}
       </li>
     </ul>
   </div>
