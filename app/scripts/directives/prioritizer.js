@@ -18,7 +18,8 @@ angular.module('priorisaurusApp')
       scope: {
         source: '=',
         sort: '=',
-        reverse: '='
+        reverse: '=',
+        exportName: '='
       },
       restrict: 'E',
       replace: true,
@@ -54,6 +55,15 @@ angular.module('priorisaurusApp')
             }
           };
 
+          var getPushEls = function getPushEls() {
+            var pushEls = '<i class="glyphicon glyphicon-chevron-up"' +
+                             'ng-click="pushPriority(\'up\', $event)"></i>' +
+                          '<i class="glyphicon glyphicon-chevron-down"' +
+                             'ng-click="pushPriority(\'down\', $event)"></i>';
+
+            return $compile(pushEls)(scope);
+          };
+
           var getRemoveEl = function getRemoveEl() {
             var removeEl = '<i class="remove glyphicon glyphicon-remove"' +
                               'ng-click="removePriority($event)"></i>';
@@ -69,6 +79,33 @@ angular.module('priorisaurusApp')
             if (apply) {
               scope.$apply();
             }
+          };
+
+
+          /*
+           *
+           * Element Functions
+           *
+           */
+
+          scope.removePriority = function removePriority($event) {
+            var $el = $($event.target).parent(),
+                id = +$el[0].id,
+                obj = _.find(scope.data, {'id': id});
+
+            $el.remove();
+            obj.moved = false;
+            updatePriority();
+          };
+
+          scope.pushPriority = function pushPriority (direction, e) {
+            var $target = $(e.target).parent();
+            if (direction === 'up') {
+              $target.parent().prepend($target);
+            } else if (direction === 'down') {
+              $target.parent().append($target);
+            }
+            updatePriority();
           };
 
 
@@ -137,7 +174,7 @@ angular.module('priorisaurusApp')
             $src.removeClass('dragging');
 
             if (dragScopeObj) {
-              $src.append(getRemoveEl)
+              $src.append(getRemoveEl).prepend(getPushEls)
                 .on({
                   'dragstart': start,
                   'dragend': end,
@@ -181,23 +218,6 @@ angular.module('priorisaurusApp')
           $placeholder.on({
             'drop': move
           });
-
-
-          /*
-           *
-           * Element Functions
-           *
-           */
-
-          scope.removePriority = function removePriority($event) {
-            var $el = $($event.target).parent(),
-                id = +$el[0].id,
-                obj = _.find(scope.data, {'id': id});
-
-            $el.remove();
-            obj.moved = false;
-            updatePriority();
-          };
         }
       }
     };

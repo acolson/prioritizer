@@ -25,9 +25,10 @@
     <!-- Add your site or application content here -->
     <div class="container" ng-controller="MainCtrl">
       <prioritizer id="prioritizer" class="prioritizer"
-                   source="'testdata.html'"
+                   source="list"
                    sort="'id'"
                    reverse="true"
+                   export-name="'priorities'"
                    template-url="views/main.html"
                    >
       </prioritizer>
