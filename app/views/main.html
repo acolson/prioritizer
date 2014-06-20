@@ -1,21 +1,30 @@
+<div class="list">
+  <input type="search" ng-model="search">
+  <ul>
+    <li class="list-item"
+        trigger-load
+        ng-hide="item.priority !== null && item.priority >= 0"
+        ng-repeat="item in data | filter:search | orderBy:sort:reverse track by item.id"
+        >
+        {{ item.id }} :: {{ item.name }} :: {{ item.sites }}
+    </li>
+  </ul>
+</div>
 <div>
-  <div class="list">
-    <input type="search" ng-model="search">
-    <ul>
-      <li class="list-item"
-          id="{{ obj.id }}"
-          trigger-load
-          ng-hide="obj.moved"
-          ng-repeat="obj in data | filter:search | orderBy:sort:reverse track by obj.id"
-          >
-          {{ obj.id }} :: {{ obj.name }} :: {{ obj.sites }}
-      </li>
-    </ul>
-  </div>
-  <div>
-    <h4>DROP it</h4>
-    <ul class="dropbox"></ul>
-    <input type="text" id="priorityList" ng-model="priorityList">
-    <button class="btn" name="{{ exportName }}">Export</button>
-  </div>
+  <h4>DROP it</h4>
+  <ul ng-class="droplistClass">
+    <li class="priority" trigger-load ng-repeat="item in priorities">
+      <i class="push-priority glyphicon glyphicon-chevron-up"
+         ng-hide="$first"
+         ng-click="pushPriority('up', $event)"></i>
+      <i class="push-priority glyphicon glyphicon-chevron-down"
+         ng-hide="$last"
+         ng-click="pushPriority('down', $event)"></i>
+      {{ item.name }} :: {{ item.priority }}
+      <i class="remove glyphicon glyphicon-remove"
+         ng-click="removePriority()"></i>
+    </li>
+  </ul>
+  <input type="text" id="priorityList" ng-model="exportList">
+  <button class="btn" name="{{ exportName }}">Export</button>
 </div>

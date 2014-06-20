@@ -1,0 +1,29 @@
+[
+  {
+    "id": 1,
+    "name": "Detroit",
+    "sites": 28
+  },
+  {
+    "id": 2,
+    "name": "New York",
+    "sites": 97
+  },
+  {
+    "id": 3,
+    "priority": 2,
+    "name": "Los Angeles",
+    "sites": 533
+  },
+  {
+    "id": 4,
+    "priority": 1,
+    "name": "Seattle",
+    "sites": 42
+  },
+  {
+    "id": 5,
+    "name": "Chicago",
+    "sites": 2
+  }
+]

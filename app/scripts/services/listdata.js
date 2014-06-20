@@ -7,19 +7,19 @@ angular.module('priorisaurusApp')
         id: 1,
         name: 'Detroit',
         sites: 28,
-        priority: null
+        priority: 0
       },
       {
         id: 2,
         name: 'New York',
         sites: 97,
-        priority: null
+        priority: 2
       },
       {
         id: 3,
         name: 'Los Angeles',
         sites: 533,
-        priority: null
+        priority: 1
       },
       {
         id: 4,

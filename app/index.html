@@ -24,14 +24,17 @@
 
     <!-- Add your site or application content here -->
     <div class="container" ng-controller="MainCtrl">
-      <prioritizer id="prioritizer" class="prioritizer"
-                   source="list"
-                   sort="'id'"
-                   reverse="true"
-                   export-name="'priorities'"
-                   template-url="views/main.html"
+      <div class="prioritizer"
+           prioritizer
+           source="list"
+           sort="'id'"
+           export-name="'priorities'"
+           template-url="views/main.html"
+           droplist-class="'dropbox'"
+           droplist-over-class="'dragging-over'"
+           dragging-class="'dragging'"
                    >
-      </prioritizer>
+      </div>
     </div>
 
     <!--[if lt IE 9]>

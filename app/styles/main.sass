@@ -31,5 +31,11 @@ $icon-font-path: "/bower_components/bootstrap-sass-official/vendor/assets/fonts/
   border: 1px solid rgba(0,0,0,0.1)
   background-color: rgba(0,0,0,0.1)
   transition: all 0.3s ease-in-out
-  &.dragging-hover
+  &.dragging-over
     box-shadow: 0 0 10px 0 rgba(0,236,164,0.7)
+
+.push-priority
+  opacity: 0
+  transition: all 0.1s
+  li:hover &
+    opacity: 1

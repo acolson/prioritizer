@@ -5,7 +5,7 @@ angular.module('priorisaurusApp')
     return {
       link: function postLink(scope, el) {
         el.attr('draggable', true);
-        $('#prioritizer').trigger('dragload', el);
+        $('[prioritizer]').triggerHandler('dragload', el);
       }
     };
   })
@@ -19,27 +19,49 @@ angular.module('priorisaurusApp')
         source: '=',
         sort: '=',
         reverse: '=',
-        exportName: '='
+        exportName: '=',
+        droplistClass: '=',
+        droplistOverClass: '=',
+        draggingClass: '='
       },
-      restrict: 'E',
-      replace: true,
+      restrict: 'A',
       link: {
+
+        // Before child compilation
         pre: function preLink(scope) {
           var url;
 
+          // source is a url if a string.
           if (typeof(scope.source) === 'string') {
             url = scope.source.replace(/\'/g, '');
+
             $http({method: 'GET', url: url})
             .success(function (data) {
               scope.data = data;
             });
+
           } else {
             scope.data = scope.source;
           }
         },
-        post: function postLink(scope) {
+
+        // After child compilation
+        post: function postLink(scope, el) {
           var $dragSrcEl,
+              $dropList = $('[ng-class="droplistClass"]'),
               $placeholder = $('<li class="placeholder"></li>');
+
+          scope.priorities = _.chain(scope.data)
+            .where(function (item) {
+              return (item.priority !== null && item.priority >= 0);
+            })
+            .sortBy('priority')
+            .value();
+
+          scope.$watch('priorities', function () {
+            getExportList();
+          }, true);
+
 
           /*
            *
@@ -47,40 +69,47 @@ angular.module('priorisaurusApp')
            *
            */
 
-          jQuery.event.props.push('dataTransfer');
-
           var stopProp = function stopProp(e) {
             if (e.stopPropagation) {
               e.stopPropagation();
             }
           };
 
-          var getPushEls = function getPushEls() {
-            var pushEls = '<i class="glyphicon glyphicon-chevron-up"' +
-                             'ng-click="pushPriority(\'up\', $event)"></i>' +
-                          '<i class="glyphicon glyphicon-chevron-down"' +
-                             'ng-click="pushPriority(\'down\', $event)"></i>';
-
-            return $compile(pushEls)(scope);
-          };
-
-          var getRemoveEl = function getRemoveEl() {
-            var removeEl = '<i class="remove glyphicon glyphicon-remove"' +
-                              'ng-click="removePriority($event)"></i>';
-            return $compile(removeEl)(scope);
-          };
-
-          var updatePriority = function updatePriority(apply) {
-            scope.priorityList = [];
-            $('.dropbox li').each(function () {
-              scope.priorityList.push(this.id);
+          var getExportList = function getExportList() {
+            var exportList = [];
+            _.forEach(scope.priorities, function (priority) {
+              exportList.push(priority.id);
             });
-            scope.priorityList.join(',');
-            if (apply) {
-              scope.$apply();
-            }
+            scope.exportList = exportList.join(',');
+            return scope.exportList;
           };
 
+          var updatePriorities = function updatePriorities($el) {
+            var $elScopeItem = $el.scope().item;
+            $dropList.children(':not(.placeholder)').each(function (index) {
+              var $this = $(this),
+                  scopeItem = $this.scope().item;
+
+              scopeItem.priority = index;
+
+              if ($this.is('.hidden')) {
+                $elScopeItem = scopeItem;
+                $this.remove();
+              }
+
+            });
+
+            scope.priorities = _.sortBy(scope.priorities, 'priority');
+            if ($el) el.triggerHandler('priorityUpdate', $elScopeItem);
+          };
+
+          var copyScope = function copyScope(scopeItem) {
+            var priorityIndex = scope.priorities.length,
+                priorityObj = scope.priorities[priorityIndex] = {};
+
+            scopeItem.priority = priorityIndex;
+            return angular.copy(scopeItem, priorityObj);
+          };
 
           /*
            *
@@ -88,24 +117,19 @@ angular.module('priorisaurusApp')
            *
            */
 
-          scope.removePriority = function removePriority($event) {
-            var $el = $($event.target).parent(),
-                id = +$el[0].id,
-                obj = _.find(scope.data, {'id': id});
-
-            $el.remove();
-            obj.moved = false;
-            updatePriority();
+          scope.removePriority = function removePriority() {
+            _.find(scope.data, {id: this.item.id}).priority = null;
+            _.remove(scope.priorities, {id: this.item.id});
           };
 
           scope.pushPriority = function pushPriority (direction, e) {
-            var $target = $(e.target).parent();
+            var $el = $(e.target).parent();
             if (direction === 'up') {
-              $target.parent().prepend($target);
+              $el.parent().prepend($el);
             } else if (direction === 'down') {
-              $target.parent().append($target);
+              $el.parent().append($el);
             }
-            updatePriority();
+            updatePriorities($el);
           };
 
 
@@ -115,36 +139,32 @@ angular.module('priorisaurusApp')
            *
            */
 
-          var start = function start(e) {
+          var start = function start() {
             $dragSrcEl = $(this);
-
-            $dragSrcEl.addClass('dragging');
-
-            e.dataTransfer.effectAllowed = 'move';
-            e.dataTransfer.setData('text/plain', this.outerHTML);
+            $dragSrcEl.addClass(scope.draggingClass);
           };
 
           var end = function end() {
-            $(this).removeClass('dragging');
+            $(this).removeClass(scope.draggingClass);
+            $dropList.removeClass(scope.droplistOverClass); // so it doesn't get 'stuck'
             $dragSrcEl.show();
             $placeholder.detach();
-            updatePriority(true);
           };
 
           var enter = function enter() {
             var $this = $(this);
-            if ($this.is('.dropbox')) {
-              $this.addClass('dragging-hover');
+            if ($this.is($dropList)) {
+              $this.addClass(scope.droplistOverClass);
             } else {
               $dragSrcEl.hide();
-              // super neat-oh trick borrowed from Farhadi's html5sortable plugin
+              // trick borrowed from Farhadi's html5sortable plugin
               // https://github.com/farhadi/html5sortable
               $this[$placeholder.index() < $this.index() ? 'after' : 'before']($placeholder);
             }
           };
 
           var leave = function leave() {
-            $(this).removeClass('dragging-hover');
+            $(this).removeClass(scope.droplistOverClass);
           };
 
           // Drag hovering on element.
@@ -152,9 +172,6 @@ angular.module('priorisaurusApp')
             if (e.preventDefault) {
               e.preventDefault();
             }
-
-            e.dataTransfer.dropEffect = 'move';
-
             return false;
           };
 
@@ -162,34 +179,41 @@ angular.module('priorisaurusApp')
           var move = function move(e) {
             stopProp(e);
 
-            var dragScopeObj = $dragSrcEl.scope() ? $dragSrcEl.scope().obj : null;
+            var $el,
+                $this = $(this),
+                scopeItem = $dragSrcEl.scope().item;
 
-            var $this = $(this),
-                $src = dragScopeObj ?
-                       $(e.dataTransfer.getData('text/plain'))
-                       : $dragSrcEl;
+            if ($this.is($dropList)) {
+              var duplicate;
 
-            $this.removeClass('dragging-hover');
+              _.forEach(scope.priorities, function (priority) {
+                duplicate = priority.id === scopeItem.id ? true : duplicate;
+              });
 
-            $src.removeClass('dragging');
+              if (!duplicate) {
+                el.triggerHandler('priorityUpdate', copyScope(scopeItem));
+              }
 
-            if (dragScopeObj) {
-              $src.append(getRemoveEl).prepend(getPushEls)
-                .on({
-                  'dragstart': start,
-                  'dragend': end,
-                  'dragenter': enter,
-                  'drop': move
-                });
-              dragScopeObj.moved = true;
-              scope.$apply();
-            }
-
-            if ($this.is('.dropbox')) {
-              $src.appendTo($this);
             } else {
-              $src.insertBefore($placeholder);
+              if (!scopeItem.priority) {
+                var newScope = scope.$new();
+                newScope.item = copyScope(scopeItem);
+
+                // TODO: This clone is jank, need to find a better way to update priorities.
+                // TODO: this may also be causing some jitter on the add.
+                $el = $dragSrcEl
+                  .clone()
+                  .addClass('hidden')
+                  .removeAttr('ng-hide ng-repeat');
+
+                $compile($el)(newScope).insertBefore($placeholder);
+              } else {
+                $el = $($dragSrcEl.insertBefore($placeholder));
+              }
+              updatePriorities($el);
             }
+
+            scope.$apply();
 
             return false;
           };
@@ -201,14 +225,23 @@ angular.module('priorisaurusApp')
            *
            */
 
-          $('#prioritizer').on('dragload', function (e, el) {
-            $(el).on({
+          el.on('dragload', function (e, item) {
+            var $item = $(item);
+
+            $item.on({
               'dragstart': start,
               'dragend': end,
             });
+
+            if ($item.is('.priority')) {
+              $item.on({
+                'dragenter': enter,
+                'drop': move
+              });
+            }
           });
 
-          $('.dropbox').on({
+          $dropList.on({
             'dragenter': enter,
             'dragleave': leave,
             'dragover': over,
@@ -217,6 +250,10 @@ angular.module('priorisaurusApp')
 
           $placeholder.on({
             'drop': move
+          });
+
+          el.on('priorityUpdate', function(e, s){
+            console.log(s);
           });
         }
       }
