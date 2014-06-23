@@ -1,6 +1,6 @@
 # Prioritizer
 
-Directive to enable HTML5 Drag & Drop from one list to a second, and reordering within the second.
+Directive to enable HTML5 Drag & Drop from one list to a second, and reordering within the second.  For a demo, `cd ./demo` & run `bower install && npm install && grunt serve`.
 
 ### Parameters
 
