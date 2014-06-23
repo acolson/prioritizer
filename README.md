@@ -4,41 +4,48 @@ Directive to enable HTML5 Drag & Drop from one list to a second, and reordering 
 
 ### Parameters
 
-##### source *[var, string]*
+#### source
+Type: `string`
 
-Source is the data used to populate the lists.  It could be a scope variable or, if a string is supplied, a url.
+Source is the data used to populate the lists.  If not a variable, it is assumed to be a URL; e.g. `source="data.things"` vs. `source="'http://example.com/the.json'"`.
 
-##### sort *[var, string]*
+#### sort
+Type: `string`
 
 String maps to property in source to sort by.
 
-##### reverse *[var, bool]*
+#### reverse
+Type: `bool`
 
 Boolean to reverse sort order.  Set true to reverse, omit otherwise.
 
-##### template-url *[var, unquoted string]*
+#### template-url
+Type: `string`
 
-Url for the prioritizer template.
+Url for the prioritizer template. **Note**: string must be unquoted.
 
-##### droplist-class *[var, string]*
+#### droplist-class
+Type: `string`
 
 Class to be applied to the drop list.
 
-##### droplist-over-class *[var, string]*
+#### droplist-over-class
+Type: `string`
 
 Class to be applied when dragging over drop list.
 
-##### dragging-class *[var, string]*
+#### dragging-class
+Type: `string`
 
 Class to be applied to element while being dragged.
 
 ### Events
 
-##### dragLoad
+#### dragLoad
 
 Returns loaded list item as they populate the page.  Fires on root prioritizer element.
 
-##### priorityUpdate
+#### priorityUpdate
 
 Returns scope of the moved element any time an item is added or reordered on the drop list.  Fires on root prioritizer element.
 
