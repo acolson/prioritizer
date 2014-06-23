@@ -5,7 +5,7 @@ angular.module('priorisaurusApp')
     return {
       link: function postLink(scope, el) {
         el.attr('draggable', true);
-        $('[prioritizer]').triggerHandler('dragload', el);
+        $('[prioritizer]').triggerHandler('dragLoad', el);
       }
     };
   })
@@ -19,7 +19,6 @@ angular.module('priorisaurusApp')
         source: '=',
         sort: '=',
         reverse: '=',
-        exportName: '=',
         droplistClass: '=',
         droplistOverClass: '=',
         draggingClass: '='
@@ -225,7 +224,7 @@ angular.module('priorisaurusApp')
            *
            */
 
-          el.on('dragload', function (e, item) {
+          el.on('dragLoad', function (e, item) {
             var $item = $(item);
 
             $item.on({
@@ -252,9 +251,6 @@ angular.module('priorisaurusApp')
             'drop': move
           });
 
-          el.on('priorityUpdate', function(e, s){
-            console.log(s);
-          });
         }
       }
     };
